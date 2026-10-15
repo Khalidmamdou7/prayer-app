@@ -8,11 +8,22 @@ A small, ad-free Android prayer-times app.
 - **Choose what happens at each prayer:** *Off*, *Notify* (a notification with sound), or *Adhan* (the full adhan plays, with a **Stop** button in the notification). Set this for each prayer in Settings, or tap the bell icon next to a prayer on the main screen.
 - **Time remaining:** a live countdown to the next prayer, plus "in 2h 15m" / "Now" / "Passed" next to each prayer.
 - **"Have you prayed?" reminder:** before the next adhan (20 minutes by default; you can pick 10–45), you get a notification asking whether you've prayed the current prayer. It has **Yes, I prayed** and **Not yet** buttons. For Fajr, the reminder comes before sunrise, because that's when Fajr ends. If you've already ticked the prayer as prayed, by tapping the checkbox on the main screen or a notification button, there's no reminder.
+- **Offline city search:** type a city in English or Arabic, e.g. "Cairo" or "القاهرة". The list has 34,000 cities with 15,000+ people, from [GeoNames](https://www.geonames.org) (CC BY 4.0). Picking a city also sets the usual calculation method for its country. You can still use GPS or type coordinates.
 - Shows the Hijri date. Supports 20 calculation methods, including Egyptian, MWL, Umm al-Qura, ISNA, Moonsighting Committee, Karachi, the Gulf states, Turkey, Morocco, Algeria, Tunisia, Jordan, Malaysia, Indonesia, France and Russia. Asr can be Standard or Hanafi. High latitudes are adjusted too.
 
 ## Adhan sound
 
-The app doesn't ship an adhan recording. In **Settings → At prayer time → Adhan sound → Choose file**, pick any adhan audio file on your phone (mp3, ogg, …). If you don't pick one, the phone's default alarm sound is used. Tap **Test** to hear it.
+Under **Settings → At prayer time → Adhan sound** you can choose:
+
+- **A built-in voice.** These are freely licensed recordings from Wikimedia Commons. Each one is downloaded once, then kept on the phone so it plays offline:
+  - [Beautiful Adhan](https://commons.wikimedia.org/wiki/File:Beautiful_adhan.ogg) by Adam-synagda (CC0)
+  - [Adhan](https://commons.wikimedia.org/wiki/File:Azan.ogg) by Andrewler (CC BY-SA 4.0)
+  - [The Adhan, Aaqib Azeez](https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3) by Atcovi (CC BY-SA 4.0)
+  - [Short adhan](https://commons.wikimedia.org/wiki/File:Adhan.ogg) by Aishatu98 (CC0)
+- **My own file.** Famous recordings, such as Makkah, Madinah or well-known muezzins, are copyrighted and can't be shipped with the app. Save one you like to your phone and pick it here.
+- **The phone's alarm sound.**
+
+Tap **Test** to hear the current choice.
 
 ## Install
 
@@ -41,5 +52,7 @@ To build it yourself, use JDK 17+ and the Android SDK:
 | `alarm/` | Exact alarms (`AlarmScheduler`), alarm/boot receivers, notifications, and the foreground `AdhanService` that plays the adhan. |
 | `sync/` | Aladhan API client, offline cache, and the WorkManager job that syncs whenever the phone is online. |
 | `prayer/PrayerTimesSource.kt` | Picks synced or calculated times, applies adjustments, and validates downloaded data. |
+| `location/` | Offline city search over `assets/cities.tsv`, built by `tools/build_cities.py`. |
+| `audio/AdhanVoices.kt` | Built-in voice catalogue and downloader. |
 | `data/SettingsStore.kt` | Settings and "prayed" flags (SharedPreferences). |
 | `ui/` | Jetpack Compose screens. |

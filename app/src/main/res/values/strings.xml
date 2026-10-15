@@ -39,7 +39,16 @@
     <string name="section_location">Location</string>
     <string name="use_current_location">Use current location</string>
     <string name="locating">Locating…</string>
-    <string name="location_failed">Could not get location. Enable location or enter coordinates.</string>
+    <string name="location_failed">Could not get a location fix. Try near a window, or search for your city instead.</string>
+    <string name="location_off">Location is turned off on this phone.</string>
+    <string name="location_denied">Location permission was not granted. You can search for your city instead.</string>
+    <string name="location_blocked">Location permission is blocked. Allow it in the app\'s settings, or search for your city instead.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="method_auto_set">Calculation method set to %1$s for this country.</string>
+    <string name="search_city">Search city</string>
+    <string name="search_city_hint">e.g. Cairo, القاهرة, London</string>
+    <string name="no_cities">No matching city. Try another spelling, or enter coordinates.</string>
+    <string name="enter_coordinates">Enter coordinates manually</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="location_name">Name (optional)</string>
@@ -55,9 +64,11 @@
     <string name="mode_notification">Notify</string>
     <string name="mode_adhan">Adhan</string>
     <string name="adhan_sound">Adhan sound</string>
-    <string name="adhan_default">Default alarm sound</string>
-    <string name="choose_file">Choose file</string>
-    <string name="reset">Reset</string>
+    <string name="adhan_default">Phone\'s alarm sound</string>
+    <string name="own_file">My own file…</string>
+    <string name="own_file_hint">Pick any adhan recording saved on your phone</string>
+    <string name="download_size">Get (%1$.1f MB)</string>
+    <string name="download_failed">Download failed (%1$s). Check your internet connection and try again.</string>
     <string name="test_adhan">Test</string>
     <string name="stop">Stop</string>
 
