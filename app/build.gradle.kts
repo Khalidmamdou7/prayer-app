@@ -34,6 +34,19 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                // Screenshot tests only run with -Pscreenshots (they need Robolectric's large Android jars).
+                it.systemProperty("screenshots", project.findProperty("screenshots") ?: "false")
+                it.systemProperty("roborazzi.test.record", "true")
+                project.findProperty("robolectricRepo")?.let { repo ->
+                    it.systemProperty("robolectric.dependency.repo.url", repo)
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -52,4 +65,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // Android's org.json is only a stub in local unit tests.
     testImplementation("org.json:json:20240303")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.39.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.39.0")
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.test.ext:junit:1.2.1")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

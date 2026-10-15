@@ -19,12 +19,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -68,6 +71,31 @@ private data class Notice(val text: String, val actionLabel: String? = null, val
 
 @Composable
 fun LocationSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
+    Section(stringResource(R.string.section_location)) {
+        if (settings.hasLocation) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
+                Column {
+                    Text(
+                        settings.locationName.ifBlank { stringResource(R.string.custom_location) },
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        "%.4f, %.4f".format(settings.latitude, settings.longitude),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        LocationPicker(settings, onChange)
+        ManualCoordinates(settings, onChange)
+    }
+}
+
+/** City search plus "use my location". Calls [onChange] with the new location. */
+@Composable
+fun LocationPicker(settings: AppSettings, onChange: (AppSettings) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val cities by produceState<CitySearch?>(null) { value = CityDatabase.get(context) }
@@ -139,13 +167,7 @@ fun LocationSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
         }
     }
 
-    Section(stringResource(R.string.section_location)) {
-        if (settings.hasLocation) {
-            Text(
-                settings.locationName.ifBlank { "%.4f, %.4f".format(settings.latitude, settings.longitude) },
-                style = MaterialTheme.typography.titleSmall,
-            )
-        }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         CitySearchField(cities, onPick = ::applyCity)
         OutlinedButton(
             onClick = {
@@ -155,18 +177,24 @@ fun LocationSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
                     permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
         ) {
-            Icon(Icons.Default.LocationOn, contentDescription = null)
+            Icon(Icons.Outlined.LocationOn, contentDescription = null, modifier = Modifier.size(18.dp))
             Text(stringResource(R.string.use_current_location), Modifier.padding(start = 8.dp))
         }
         notice?.let { n ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(n.text, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    n.text,
+                    Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 if (n.actionLabel != null && n.action != null) TextButton(onClick = n.action) { Text(n.actionLabel) }
             }
         }
-        ManualCoordinates(settings, onChange)
     }
 }
 
@@ -205,6 +233,7 @@ private fun CitySearchField(cities: CitySearch?, onPick: (City) -> Unit) {
         },
         singleLine = true,
         enabled = cities != null,
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     )
     if (query.isNotBlank() && cities != null && results.isEmpty()) {

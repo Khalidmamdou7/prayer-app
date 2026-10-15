@@ -76,6 +76,14 @@ class PrayerScheduleTest {
     }
 
     @Test
+    fun previousIncludesYesterdaysIsha() {
+        assertEquals(Prayer.DHUHR to times[Prayer.DHUHR], schedule.previous(times[Prayer.DHUHR].plusMinutes(1)))
+        val (prayer, time) = schedule.previous(day.atStartOfDay(zone).plusHours(1))
+        assertEquals(Prayer.ISHA, prayer)
+        assertEquals(day.minusDays(1), time.toLocalDate())
+    }
+
+    @Test
     fun formatsRemaining() {
         assertEquals("01:02:03", PrayerSchedule.formatRemaining(java.time.Duration.ofSeconds(3723), withSeconds = true))
         assertEquals("1h 2m", PrayerSchedule.formatRemaining(java.time.Duration.ofSeconds(3723), withSeconds = false))

@@ -51,6 +51,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.azan.prayer.R
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import com.azan.prayer.ui.theme.tabular
 import com.azan.prayer.alarm.AdhanService
 import com.azan.prayer.data.AlertMode
 import com.azan.prayer.data.AppSettings
@@ -65,17 +80,23 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(settings: AppSettings, onChange: (AppSettings) -> Unit, onBack: () -> Unit) {
+    val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
+        modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
-                    if (settings.hasLocation) {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                        }
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background,
+                ),
+                scrollBehavior = scroll,
             )
         },
     ) { padding ->
@@ -84,26 +105,41 @@ fun SettingsScreen(settings: AppSettings, onChange: (AppSettings) -> Unit, onBac
                 .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             LocationSection(settings, onChange)
             CalculationSection(settings, onChange)
-            SyncSection(settings, onChange)
-            AdjustSection(settings, onChange)
             AlertsSection(settings, onChange)
             ReminderSection(settings, onChange)
+            SyncSection(settings, onChange)
             ReliabilitySection()
         }
     }
 }
 
+/** A titled group: small coloured header above a rounded surface. */
 @Composable
 internal fun Section(title: String, content: @Composable () -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-            content()
+    Column {
+        Text(
+            title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+        )
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                Modifier
+                    .animateContentSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) { content() }
         }
     }
 }
@@ -120,6 +156,7 @@ private fun CalculationSection(settings: AppSettings, onChange: (AppSettings) ->
                 readOnly = true,
                 label = { Text(stringResource(R.string.method)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable),
@@ -143,9 +180,12 @@ private fun CalculationSection(settings: AppSettings, onChange: (AppSettings) ->
                     selected = settings.asrMethod == asr,
                     onClick = { onChange(settings.copy(asrMethod = asr)) },
                     shape = SegmentedButtonDefaults.itemShape(i, AsrMethod.entries.size),
+                    icon = {},
                 ) { Text(if (asr == AsrMethod.STANDARD) "Standard" else "Hanafi") }
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Adjustments(settings, onChange)
     }
 }
 
@@ -186,8 +226,11 @@ private fun AlertsSection(settings: AppSettings, onChange: (AppSettings) -> Unit
 
         Text(stringResource(R.string.adhan_sound), style = MaterialTheme.typography.labelLarge)
         AdhanVoicePicker(settings, onChange, onChooseFile = { picker.launch(arrayOf("audio/*")) })
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { AdhanService.start(context, Prayer.DHUHR) }) { Text(stringResource(R.string.test_adhan)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            FilledTonalButton(onClick = { AdhanService.start(context, Prayer.DHUHR) }) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(stringResource(R.string.test_adhan), Modifier.padding(start = 6.dp))
+            }
             TextButton(onClick = { AdhanService.stop(context) }) { Text(stringResource(R.string.stop)) }
         }
     }
@@ -265,26 +308,64 @@ private fun SyncSection(settings: AppSettings, onChange: (AppSettings) -> Unit) 
     }
 }
 
+/** Collapsed by default: most people never need it. */
 @Composable
-private fun AdjustSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
-    Section(stringResource(R.string.section_adjust)) {
-        Text(
-            stringResource(R.string.adjust_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+private fun Adjustments(settings: AppSettings, onChange: (AppSettings) -> Unit) {
+    var open by remember { mutableStateOf(settings.adjustments.values.any { it != 0 }) }
+    val changed = Prayer.entries.filter { (settings.adjustments[it] ?: 0) != 0 }
+    val names = Prayer.entries.associateWith { stringResource(it.label) }
+    val summary = if (changed.isEmpty()) {
+        stringResource(R.string.adjust_none)
+    } else {
+        changed.joinToString(", ") { p ->
+            val m = settings.adjustments.getValue(p)
+            "${names.getValue(p)} ${if (m > 0) "+$m" else "−${-m}"}"
+        }
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .clickable { open = !open }
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.section_adjust), style = MaterialTheme.typography.bodyLarge)
+            Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(
+            if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        for (prayer in Prayer.entries) {
-            val minutes = settings.adjustments[prayer] ?: 0
-            fun set(value: Int) = onChange(settings.copy(adjustments = settings.adjustments + (prayer to value)))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(prayer.label), Modifier.weight(1f))
-                TextButton(onClick = { set((minutes - 1).coerceAtLeast(-MAX_ADJUST)) }) { Text("−") }
-                Text(
-                    if (minutes > 0) "+$minutes" else "$minutes",
-                    Modifier.width(40.dp),
-                    textAlign = TextAlign.Center,
-                )
-                TextButton(onClick = { set((minutes + 1).coerceAtMost(MAX_ADJUST)) }) { Text("+") }
+    }
+    if (!open) return
+    Text(
+        stringResource(R.string.adjust_desc),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    for (prayer in Prayer.entries) {
+        val minutes = settings.adjustments[prayer] ?: 0
+        fun set(value: Int) = onChange(settings.copy(adjustments = settings.adjustments + (prayer to value)))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(prayer.label), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+            FilledTonalIconButton(onClick = { set((minutes - 1).coerceAtLeast(-MAX_ADJUST)) }, modifier = Modifier.size(36.dp)) {
+                Text("−", style = MaterialTheme.typography.titleMedium)
+            }
+            Text(
+                when {
+                    minutes > 0 -> "+$minutes"
+                    minutes < 0 -> "−${-minutes}"
+                    else -> "0"
+                },
+                Modifier.width(48.dp),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium.tabular(),
+            )
+            FilledTonalIconButton(onClick = { set((minutes + 1).coerceAtMost(MAX_ADJUST)) }, modifier = Modifier.size(36.dp)) {
+                Text("+", style = MaterialTheme.typography.titleMedium)
             }
         }
     }
@@ -296,9 +377,19 @@ private const val MAX_ADJUST = 30
 private fun ReliabilitySection() {
     val context = LocalContext.current
     Section(stringResource(R.string.section_reliability)) {
-        Text(stringResource(R.string.battery_desc), style = MaterialTheme.typography.bodySmall)
+        Text(
+            stringResource(R.string.battery_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         OutlinedButton(onClick = {
             runCatching { context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) }
         }) { Text(stringResource(R.string.battery_settings)) }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Text(
+            stringResource(R.string.about_credits),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }

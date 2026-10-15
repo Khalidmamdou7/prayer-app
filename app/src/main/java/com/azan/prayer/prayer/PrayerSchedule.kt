@@ -79,6 +79,16 @@ class PrayerSchedule(private val timesFor: (LocalDate) -> PrayerTimes) {
         error("No upcoming prayer found")
     }
 
+    /** The latest time point (including sunrise) at or before [now]. */
+    fun previous(now: ZonedDateTime): Pair<Prayer, ZonedDateTime> {
+        val today = now.toLocalDate()
+        for (date in listOf(today, today.minusDays(1))) {
+            val times = timesFor(date)
+            Prayer.entries.lastOrNull { !times[it].isAfter(now) }?.let { return it to times[it] }
+        }
+        error("No previous prayer found")
+    }
+
     companion object {
         fun formatRemaining(duration: Duration, withSeconds: Boolean): String {
             val total = duration.seconds.coerceAtLeast(0)

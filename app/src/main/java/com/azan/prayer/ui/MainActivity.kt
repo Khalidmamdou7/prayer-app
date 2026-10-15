@@ -9,12 +9,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,13 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.azan.prayer.alarm.AlarmScheduler
 import com.azan.prayer.alarm.Notifications
 import com.azan.prayer.data.AppSettings
 import com.azan.prayer.data.SettingsStore
+import com.azan.prayer.ui.theme.AzanTheme
 import com.azan.prayer.sync.SyncWorker
 import com.azan.prayer.sync.SyncedTimes
 import com.azan.prayer.sync.SyncedTimesStore
@@ -50,7 +50,7 @@ private fun AzanApp() {
     val context = LocalContext.current
     val store = remember { SettingsStore(context) }
     var settings by remember { mutableStateOf(store.load()) }
-    var showSettings by rememberSaveable { mutableStateOf(!settings.hasLocation) }
+    var showSettings by rememberSaveable { mutableStateOf(false) }
     // Bumped whenever something outside Compose may have changed (notification actions, permissions).
     var refreshKey by remember { mutableIntStateOf(0) }
 
@@ -66,8 +66,9 @@ private fun AzanApp() {
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         refreshKey++
     }
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= 33 && !Notifications.canPost(context)) {
+    // Ask for notifications once the app is set up, not on the welcome screen.
+    LaunchedEffect(settings.hasLocation) {
+        if (settings.hasLocation && Build.VERSION.SDK_INT >= 33 && !Notifications.canPost(context)) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -82,24 +83,37 @@ private fun AzanApp() {
         }
     }
 
-    if (showSettings) {
-        BackHandler(enabled = settings.hasLocation) { showSettings = false }
-        SettingsScreen(
-            settings = settings,
-            onChange = update,
-            onBack = { showSettings = false },
-        )
-    } else {
-        HomeScreen(
-            settings = settings,
-            store = store,
-            refreshKey = refreshKey,
-            onChange = update,
-            onOpenSettings = { showSettings = true },
-            onRequestNotifications = {
-                if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-            },
-        )
+    val screen = when {
+        !settings.hasLocation -> Screen.WELCOME
+        showSettings -> Screen.SETTINGS
+        else -> Screen.HOME
+    }
+    AnimatedContent(
+        targetState = screen,
+        transitionSpec = {
+            val forward = targetState.ordinal > initialState.ordinal
+            (fadeIn(tween(220)) + slideInHorizontally(tween(260)) { if (forward) it / 8 else -it / 8 }) togetherWith
+                fadeOut(tween(160))
+        },
+        label = "screen",
+    ) { target ->
+        when (target) {
+            Screen.WELCOME -> WelcomeScreen(settings, update)
+            Screen.SETTINGS -> {
+                BackHandler { showSettings = false }
+                SettingsScreen(settings = settings, onChange = update, onBack = { showSettings = false })
+            }
+            Screen.HOME -> HomeScreen(
+                settings = settings,
+                store = store,
+                refreshKey = refreshKey,
+                onChange = update,
+                onOpenSettings = { showSettings = true },
+                onRequestNotifications = {
+                    if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                },
+            )
+        }
     }
 }
 
@@ -112,18 +126,4 @@ private fun needsSync(synced: SyncedTimes, settings: AppSettings): Boolean {
     return lastDay.isBefore(LocalDate.now().plusDays(14))
 }
 
-private val Green = Color(0xFF0F5B4E)
-private val Gold = Color(0xFFC9A646)
-
-@Composable
-fun AzanTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
-    val context = LocalContext.current
-    val colors = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-            if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        dark -> darkColorScheme(primary = Color(0xFF7FD4C1), secondary = Gold)
-        else -> lightColorScheme(primary = Green, secondary = Gold)
-    }
-    MaterialTheme(colorScheme = colors, content = content)
-}
+private enum class Screen { WELCOME, HOME, SETTINGS }

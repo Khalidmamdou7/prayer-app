@@ -2,6 +2,12 @@
 
 A small, ad-free Android prayer-times app.
 
+<p>
+  <img src="docs/screenshots/home_light.png" width="240" alt="Home, light">
+  <img src="docs/screenshots/home_dark.png" width="240" alt="Home, dark">
+  <img src="docs/screenshots/welcome.png" width="240" alt="Welcome">
+</p>
+
 - **No ads, no tracking.** The app has no ads or analytics SDKs. It only goes online to download prayer times.
 - **Accurate, and it works offline.** When internet is available, the app downloads this month's and next month's times from [aladhan.com](https://aladhan.com/prayer-times-api) for your location and method. They're cached on the phone, so it keeps working offline for weeks. If it has never synced, or the cache runs out, the times are calculated on the device, and the main screen shows which source is in use. Downloaded times are checked against the on-device calculation, and any day that disagrees by more than an hour is thrown away.
 - **Per-prayer ± minute adjustments,** to match your local mosque exactly.
@@ -34,6 +40,7 @@ To build it yourself, use JDK 17+ and the Android SDK:
 ```
 ./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
 ./gradlew testDebugUnitTest    # prayer time + scheduling tests
+./gradlew testDebugUnitTest -Pscreenshots=true --tests '*ScreenshotTest*'   # re-render docs/screenshots
 ```
 
 ## First run
