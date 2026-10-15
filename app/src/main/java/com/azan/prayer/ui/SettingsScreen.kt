@@ -11,6 +11,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.provider.Settings
+import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
@@ -66,11 +69,14 @@ import com.azan.prayer.data.AppSettings
 import com.azan.prayer.prayer.AsrMethod
 import com.azan.prayer.prayer.CalculationMethod
 import com.azan.prayer.prayer.Prayer
+import com.azan.prayer.sync.SyncWorker
+import com.azan.prayer.sync.SyncedTimesStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.time.LocalDate
 import java.util.Locale
 import kotlin.coroutines.resume
 
@@ -101,6 +107,8 @@ fun SettingsScreen(settings: AppSettings, onChange: (AppSettings) -> Unit, onBac
         ) {
             LocationSection(settings, onChange)
             CalculationSection(settings, onChange)
+            SyncSection(settings, onChange)
+            AdjustSection(settings, onChange)
             AlertsSection(settings, onChange)
             ReminderSection(settings, onChange)
             ReliabilitySection()
@@ -354,6 +362,70 @@ private fun ReminderSection(settings: AppSettings, onChange: (AppSettings) -> Un
         }
     }
 }
+
+@Composable
+private fun SyncSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
+    val context = LocalContext.current
+    val version by SyncedTimesStore.version.collectAsState()
+    val synced = remember(version) { SyncedTimesStore(context).load() }
+    Section(stringResource(R.string.section_sync)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.sync_switch), Modifier.weight(1f))
+            Switch(settings.syncEnabled, { onChange(settings.copy(syncEnabled = it)) })
+        }
+        Text(
+            stringResource(R.string.sync_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (settings.syncEnabled) {
+            val current = synced.key == settings.syncKey() && synced.syncedAt != null
+            Text(
+                if (current) {
+                    stringResource(
+                        R.string.sync_last,
+                        DateUtils.getRelativeTimeSpanString(synced.syncedAt!!.toEpochMilli()).toString(),
+                        synced.days.keys.count { !it.isBefore(LocalDate.now()) },
+                    )
+                } else {
+                    stringResource(R.string.sync_never)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            synced.lastError?.let {
+                Text(stringResource(R.string.sync_error, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+            OutlinedButton(onClick = { SyncWorker.syncNow(context) }) { Text(stringResource(R.string.sync_now)) }
+        }
+    }
+}
+
+@Composable
+private fun AdjustSection(settings: AppSettings, onChange: (AppSettings) -> Unit) {
+    Section(stringResource(R.string.section_adjust)) {
+        Text(
+            stringResource(R.string.adjust_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        for (prayer in Prayer.entries) {
+            val minutes = settings.adjustments[prayer] ?: 0
+            fun set(value: Int) = onChange(settings.copy(adjustments = settings.adjustments + (prayer to value)))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(prayer.label), Modifier.weight(1f))
+                TextButton(onClick = { set((minutes - 1).coerceAtLeast(-MAX_ADJUST)) }) { Text("−") }
+                Text(
+                    if (minutes > 0) "+$minutes" else "$minutes",
+                    Modifier.width(40.dp),
+                    textAlign = TextAlign.Center,
+                )
+                TextButton(onClick = { set((minutes + 1).coerceAtMost(MAX_ADJUST)) }) { Text("+") }
+            }
+        }
+    }
+}
+
+private const val MAX_ADJUST = 30
 
 @Composable
 private fun ReliabilitySection() {

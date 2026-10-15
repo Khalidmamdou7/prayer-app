@@ -66,6 +66,20 @@
     <string name="reminder_desc">%1$d minutes before the next adhan (before sunrise for Fajr) you get a notification asking whether you have prayed. It is skipped if you already marked the prayer as prayed.</string>
     <string name="minutes_before">Minutes before</string>
 
+    <string name="source_synced">Synced online · updated %1$s</string>
+    <string name="source_calculated">Calculated on device</string>
+
+    <string name="section_sync">Online sync</string>
+    <string name="sync_switch">Sync times when internet is available</string>
+    <string name="sync_desc">Downloads 1–2 months of times from aladhan.com for your location and method, so the app keeps working offline. Without a sync, times are calculated on the phone.</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_never">Not synced yet</string>
+    <string name="sync_last">Last synced %1$s · %2$d days stored</string>
+    <string name="sync_error">Last attempt failed: %1$s. Will retry when online.</string>
+
+    <string name="section_adjust">Adjust times (minutes)</string>
+    <string name="adjust_desc">Shift any time earlier or later to match your local mosque.</string>
+
     <string name="section_reliability">Reliability</string>
     <string name="battery_desc">Some phones stop alarms to save battery. If the adhan is late or missing, exclude Azan from battery optimization.</string>
     <string name="battery_settings">Battery settings</string>

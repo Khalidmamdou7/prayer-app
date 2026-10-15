@@ -7,7 +7,10 @@ import com.azan.prayer.prayer.CalculationMethod
 import com.azan.prayer.prayer.Prayer
 import com.azan.prayer.prayer.PrayerCalculator
 import com.azan.prayer.prayer.PrayerSchedule
+import com.azan.prayer.prayer.PrayerTimesSource
+import com.azan.prayer.sync.SyncedTimes
 import java.time.LocalDate
+import java.util.Locale
 
 /** What happens when a prayer's time comes in. */
 enum class AlertMode { OFF, NOTIFICATION, ADHAN }
@@ -23,6 +26,9 @@ data class AppSettings(
     val reminderMinutes: Int,
     val adhanUri: Uri?,
     val adhanName: String?,
+    val syncEnabled: Boolean,
+    /** Minutes added to each time (negative = earlier), to match a local mosque. */
+    val adjustments: Map<Prayer, Int>,
 ) {
     val hasLocation: Boolean get() = latitude != null && longitude != null
 
@@ -35,7 +41,18 @@ data class AppSettings(
             null
         }
 
-    fun schedule(): PrayerSchedule? = calculator()?.let { calc -> PrayerSchedule(calc::timesFor) }
+    /** Identifies what synced times are valid for; they're discarded when this changes. */
+    fun syncKey(): String = String.format(
+        Locale.US, "%.4f,%.4f,%s,%s", latitude ?: 0.0, longitude ?: 0.0, method.name, asrMethod.name,
+    )
+
+    /** Synced times when available and still matching these settings, otherwise the calculation. */
+    fun timesSource(synced: SyncedTimes): PrayerTimesSource? = calculator()?.let { calc ->
+        val days = if (syncEnabled && synced.key == syncKey()) synced.days else emptyMap()
+        PrayerTimesSource(calc, days, adjustments)
+    }
+
+    fun schedule(synced: SyncedTimes): PrayerSchedule? = timesSource(synced)?.let { PrayerSchedule(it::timesFor) }
 }
 
 class SettingsStore(context: Context) {
@@ -54,6 +71,8 @@ class SettingsStore(context: Context) {
         reminderMinutes = prefs.getInt(KEY_REMINDER_MINUTES, DEFAULT_REMINDER_MINUTES),
         adhanUri = prefs.getString(KEY_ADHAN_URI, null)?.let(Uri::parse),
         adhanName = prefs.getString(KEY_ADHAN_NAME, null),
+        syncEnabled = prefs.getBoolean(KEY_SYNC_ENABLED, true),
+        adjustments = Prayer.entries.associateWith { prefs.getInt(KEY_ADJUST_PREFIX + it.name, 0) },
     )
 
     fun save(s: AppSettings) {
@@ -68,6 +87,8 @@ class SettingsStore(context: Context) {
             putInt(KEY_REMINDER_MINUTES, s.reminderMinutes)
             putString(KEY_ADHAN_URI, s.adhanUri?.toString())
             putString(KEY_ADHAN_NAME, s.adhanName)
+            putBoolean(KEY_SYNC_ENABLED, s.syncEnabled)
+            s.adjustments.forEach { (prayer, minutes) -> putInt(KEY_ADJUST_PREFIX + prayer.name, minutes) }
         }.apply()
     }
 
@@ -103,5 +124,7 @@ class SettingsStore(context: Context) {
         private const val KEY_ADHAN_URI = "adhan_uri"
         private const val KEY_ADHAN_NAME = "adhan_name"
         private const val KEY_PRAYED_PREFIX = "prayed_"
+        private const val KEY_SYNC_ENABLED = "sync_enabled"
+        private const val KEY_ADJUST_PREFIX = "adjust_"
     }
 }

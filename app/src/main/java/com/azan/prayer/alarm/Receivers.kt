@@ -8,6 +8,7 @@ import com.azan.prayer.data.AlertMode
 import com.azan.prayer.data.SettingsStore
 import com.azan.prayer.prayer.EventType
 import com.azan.prayer.prayer.Prayer
+import com.azan.prayer.sync.SyncedTimesStore
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -26,7 +27,7 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun handle(context: Context, type: EventType, prayer: Prayer, date: LocalDate) {
         val store = SettingsStore(context)
         val settings = store.load()
-        val schedule = settings.schedule() ?: return
+        val schedule = settings.schedule(SyncedTimesStore(context).load()) ?: return
         when (type) {
             EventType.ADHAN -> {
                 // Ignore alarms that arrive very late (e.g. device was off) to avoid a surprise adhan.

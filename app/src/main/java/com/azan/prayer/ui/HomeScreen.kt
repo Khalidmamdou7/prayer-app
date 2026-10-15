@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.text.format.DateFormat
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +56,10 @@ import com.azan.prayer.data.AppSettings
 import com.azan.prayer.data.SettingsStore
 import com.azan.prayer.prayer.Prayer
 import com.azan.prayer.prayer.PrayerSchedule
+import com.azan.prayer.sync.SyncedTimesStore
 import kotlinx.coroutines.delay
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.chrono.HijrahChronology
@@ -82,6 +86,9 @@ fun HomeScreen(
         }
     }
     var prayedVersion by remember { mutableIntStateOf(0) }
+    val syncVersion by SyncedTimesStore.version.collectAsState()
+    val synced = remember(syncVersion, refreshKey) { SyncedTimesStore(context).load() }
+    val source = remember(settings, synced) { settings.timesSource(synced) }
 
     Scaffold(
         topBar = {
@@ -119,19 +126,25 @@ fun HomeScreen(
                 }
             }
 
-            val schedule = settings.schedule()
-            if (schedule == null) {
+            if (source == null) {
                 Text(stringResource(R.string.no_location))
                 Button(onClick = onOpenSettings) { Text(stringResource(R.string.set_location)) }
                 return@Column
             }
 
             val today = now.toLocalDate()
-            val times = remember(settings, today) { settings.calculator()!!.timesFor(today) }
+            val schedule = remember(source) { PrayerSchedule(source::timesFor) }
+            val times = remember(source, today) { source.timesFor(today) }
             val (nextPrayer, nextTime) = schedule.next(now)
             val current = schedule.current(now)
 
-            HeaderCard(settings, today, nextPrayer, Duration.between(now, nextTime))
+            HeaderCard(
+                settings,
+                today,
+                nextPrayer,
+                Duration.between(now, nextTime),
+                syncedAt = synced.syncedAt.takeIf { source.isSynced(today) },
+            )
 
             // Read prayed flags on every tick: notification actions may change them while we are open.
             val prayedKey = refreshKey to prayedVersion
@@ -179,7 +192,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HeaderCard(settings: AppSettings, today: LocalDate, next: Prayer, remaining: Duration) {
+private fun HeaderCard(settings: AppSettings, today: LocalDate, next: Prayer, remaining: Duration, syncedAt: Instant?) {
     val gregorian = today.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
     val hijri = runCatching {
         HijrahDate.from(today).format(DateTimeFormatter.ofPattern("d MMMM y").withChronology(HijrahChronology.INSTANCE))
@@ -198,6 +211,17 @@ private fun HeaderCard(settings: AppSettings, today: LocalDate, next: Prayer, re
             )
             Text(gregorian, style = MaterialTheme.typography.bodyMedium)
             if (hijri != null) Text("$hijri AH", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                if (syncedAt != null) {
+                    stringResource(
+                        R.string.source_synced,
+                        DateUtils.getRelativeTimeSpanString(syncedAt.toEpochMilli()).toString(),
+                    )
+                } else {
+                    stringResource(R.string.source_calculated)
+                },
+                style = MaterialTheme.typography.labelSmall,
+            )
             Spacer(Modifier.padding(6.dp))
             Text(stringResource(R.string.next_prayer, stringResource(next.label)), style = MaterialTheme.typography.titleLarge)
             Text(

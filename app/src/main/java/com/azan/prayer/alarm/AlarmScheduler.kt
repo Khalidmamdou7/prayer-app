@@ -10,6 +10,7 @@ import com.azan.prayer.data.SettingsStore
 import com.azan.prayer.prayer.AlarmEvent
 import com.azan.prayer.prayer.EventType
 import com.azan.prayer.prayer.Prayer
+import com.azan.prayer.sync.SyncedTimesStore
 import java.time.ZonedDateTime
 
 /**
@@ -25,7 +26,7 @@ object AlarmScheduler {
 
     fun rescheduleAll(context: Context) {
         val settings = SettingsStore(context).load()
-        val schedule = settings.schedule()
+        val schedule = settings.schedule(SyncedTimesStore(context).load())
         val now = ZonedDateTime.now()
         for (prayer in Prayer.prayers) {
             val adhan = schedule?.takeIf { settings.alertMode(prayer) != AlertMode.OFF }

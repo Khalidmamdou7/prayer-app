@@ -30,6 +30,12 @@ import com.azan.prayer.alarm.AlarmScheduler
 import com.azan.prayer.alarm.Notifications
 import com.azan.prayer.data.AppSettings
 import com.azan.prayer.data.SettingsStore
+import com.azan.prayer.sync.SyncWorker
+import com.azan.prayer.sync.SyncedTimes
+import com.azan.prayer.sync.SyncedTimesStore
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +57,9 @@ private fun AzanApp() {
     LifecycleResumeEffect(Unit) {
         refreshKey++
         AlarmScheduler.rescheduleAll(context)
+        if (settings.syncEnabled && settings.hasLocation && needsSync(SyncedTimesStore(context).load(), settings)) {
+            SyncWorker.syncNow(context)
+        }
         onPauseOrDispose { }
     }
 
@@ -64,9 +73,13 @@ private fun AzanApp() {
     }
 
     val update: (AppSettings) -> Unit = { new ->
+        val old = settings
         settings = new
         store.save(new)
         AlarmScheduler.rescheduleAll(context)
+        if (new.syncEnabled && new.hasLocation && (new.syncKey() != old.syncKey() || !old.syncEnabled)) {
+            SyncWorker.syncNow(context)
+        }
     }
 
     if (showSettings) {
@@ -88,6 +101,15 @@ private fun AzanApp() {
             },
         )
     }
+}
+
+/** True when stored times are for other settings, older than a day, or about to run out. */
+private fun needsSync(synced: SyncedTimes, settings: AppSettings): Boolean {
+    val syncedAt = synced.syncedAt ?: return true
+    if (synced.key != settings.syncKey()) return true
+    if (Duration.between(syncedAt, Instant.now()) > Duration.ofDays(1)) return true
+    val lastDay = synced.days.keys.maxOrNull() ?: return true
+    return lastDay.isBefore(LocalDate.now().plusDays(14))
 }
 
 private val Green = Color(0xFF0F5B4E)
