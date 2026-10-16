@@ -2,6 +2,8 @@ package com.azan.prayer.audio
 
 import android.content.Context
 import android.net.Uri
+import androidx.annotation.StringRes
+import com.azan.prayer.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -12,7 +14,7 @@ import java.net.URL
 /** A freely licensed adhan recording from Wikimedia Commons, downloaded once and kept offline. */
 data class AdhanVoice(
     val id: String,
-    val title: String,
+    @StringRes val title: Int,
     val credit: String,
     val url: String,
     val extension: String,
@@ -25,7 +27,7 @@ object AdhanVoices {
     val all = listOf(
         AdhanVoice(
             id = "beautiful",
-            title = "Beautiful Adhan",
+            title = R.string.voice_beautiful,
             credit = "Adam-synagda · CC0 · 2:34",
             url = "https://upload.wikimedia.org/wikipedia/commons/b/b0/Beautiful_adhan.ogg",
             extension = "ogg",
@@ -33,7 +35,7 @@ object AdhanVoices {
         ),
         AdhanVoice(
             id = "andrewler",
-            title = "Adhan (long)",
+            title = R.string.voice_long,
             credit = "Andrewler · CC BY-SA 4.0 · 3:03",
             url = "https://upload.wikimedia.org/wikipedia/commons/8/86/Azan.ogg",
             extension = "ogg",
@@ -41,7 +43,7 @@ object AdhanVoices {
         ),
         AdhanVoice(
             id = "aaqib",
-            title = "Adhan — Aaqib Azeez",
+            title = R.string.voice_aaqib,
             credit = "Atcovi · CC BY-SA 4.0 · 1:27",
             url = "https://upload.wikimedia.org/wikipedia/commons/7/7d/The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3",
             extension = "mp3",
@@ -49,7 +51,7 @@ object AdhanVoices {
         ),
         AdhanVoice(
             id = "short",
-            title = "Short adhan",
+            title = R.string.voice_short,
             credit = "Aishatu98 · CC0 · 0:42",
             url = "https://upload.wikimedia.org/wikipedia/commons/e/e7/Adhan.ogg",
             extension = "ogg",

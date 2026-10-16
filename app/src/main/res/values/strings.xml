@@ -19,7 +19,7 @@
     <string name="next_prayer_in">%1$s in</string>
     <string name="at_time">at %1$s</string>
     <string name="today">Today</string>
-    <string name="prayed_count">%1$d/%2$d prayed</string>
+    <string name="prayed_count">Prayed %1$d of %2$d</string>
     <string name="status_now">Now · %1$s left</string>
     <string name="alert_set_off">%1$s: no alert</string>
     <string name="alert_set_notification">%1$s: notification</string>
@@ -39,7 +39,6 @@
     <string name="notif_prayer_text">It is time for %1$s prayer</string>
     <string name="notif_adhan_playing">Adhan is playing</string>
     <string name="notif_reminder_title">Have you prayed %1$s?</string>
-    <string name="notif_reminder_text">%1$s time ends in %2$d min</string>
     <string name="action_prayed">Mark as prayed</string>
     <string name="action_yes_prayed">Yes, I prayed</string>
     <string name="action_not_yet">Not yet</string>
@@ -91,7 +90,6 @@
 
     <string name="section_reminder">\"Have you prayed?\" reminder</string>
     <string name="reminder_switch">Ask before each prayer\'s time ends</string>
-    <string name="reminder_desc">%1$d minutes before the next adhan (before sunrise for Fajr) you get a notification asking whether you have prayed. It is skipped if you already marked the prayer as prayed.</string>
     <string name="minutes_before">Minutes before</string>
 
     <string name="source_synced">Synced online · updated %1$s</string>
@@ -102,7 +100,7 @@
     <string name="sync_desc">Downloads 1–2 months of times from aladhan.com for your location and method, so the app keeps working offline. Without a sync, times are calculated on the phone.</string>
     <string name="sync_now">Sync now</string>
     <string name="sync_never">Not synced yet</string>
-    <string name="sync_last">Last synced %1$s · %2$d days stored</string>
+    <string name="sync_last">Last synced %1$s · days stored: %2$d</string>
     <string name="sync_error">Last attempt failed: %1$s. Will retry when online.</string>
 
     <string name="section_adjust">Fine-tune times</string>
@@ -113,4 +111,52 @@
     <string name="section_reliability">Reliability &amp; about</string>
     <string name="battery_desc">Some phones stop alarms to save battery. If the adhan is late or missing, exclude Azan from battery optimization.</string>
     <string name="battery_settings">Battery settings</string>
+
+    <!-- Calculation methods -->
+    <string name="method_egypt">Egyptian General Authority of Survey</string>
+    <string name="method_mwl">Muslim World League</string>
+    <string name="method_umm_al_qura">Umm al-Qura, Makkah</string>
+    <string name="method_isna">ISNA (North America)</string>
+    <string name="method_karachi">University of Islamic Sciences, Karachi</string>
+    <string name="method_dubai">Dubai</string>
+    <string name="method_kuwait">Kuwait</string>
+    <string name="method_qatar">Qatar</string>
+    <string name="method_singapore">Singapore / Malaysia / Indonesia</string>
+    <string name="method_turkey">Diyanet, Turkey</string>
+    <string name="method_tehran">Institute of Geophysics, Tehran</string>
+    <string name="method_jordan">Jordan</string>
+    <string name="method_morocco">Morocco</string>
+    <string name="method_algeria">Algeria</string>
+    <string name="method_tunisia">Tunisia</string>
+    <string name="method_jakim">JAKIM, Malaysia</string>
+    <string name="method_kemenag">Kemenag, Indonesia</string>
+    <string name="method_france">UOIF, France</string>
+    <string name="method_russia">Spiritual Administration, Russia</string>
+    <string name="method_moonsighting">Moonsighting Committee (UK, North America)</string>
+    <string name="asr_standard">Standard</string>
+    <string name="asr_hanafi">Hanafi</string>
+
+    <!-- Built-in adhan voices -->
+    <string name="voice_beautiful">Beautiful Adhan</string>
+    <string name="voice_long">Adhan (long)</string>
+    <string name="voice_aaqib">Adhan — Aaqib Azeez</string>
+    <string name="voice_short">Short adhan</string>
+
+    <string name="duration_hm">%1$dh %2$dm</string>
+    <string name="duration_m">%1$dm</string>
+    <string name="hijri_suffix">%1$s AH</string>
+
+    <string name="section_language">Language</string>
+    <string name="language_system">Phone default</string>
+    <string name="language_en" translatable="false">English</string>
+    <string name="language_ar" translatable="false">العربية</string>
+
+    <plurals name="notif_reminder_text">
+        <item quantity="one">%1$s time ends in %2$d minute</item>
+        <item quantity="other">%1$s time ends in %2$d minutes</item>
+    </plurals>
+    <plurals name="reminder_desc">
+        <item quantity="one">%1$d minute before the next adhan (before sunrise for Fajr) you get a notification asking whether you have prayed. It is skipped if you already marked the prayer as prayed.</item>
+        <item quantity="other">%1$d minutes before the next adhan (before sunrise for Fajr) you get a notification asking whether you have prayed. It is skipped if you already marked the prayer as prayed.</item>
+    </plurals>
 </resources>

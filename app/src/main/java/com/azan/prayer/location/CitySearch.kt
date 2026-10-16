@@ -22,6 +22,13 @@ data class City(
     fun countryName(locale: Locale = Locale.getDefault()): String =
         Locale("", countryCode).getDisplayCountry(locale).ifBlank { countryCode }
 
+    /** "Cairo, Egypt", or "القاهرة، مصر" when [locale] is Arabic and an Arabic name is known. */
+    fun localName(locale: Locale): String {
+        val arabic = locale.language == "ar"
+        val city = if (arabic && arabicName.isNotBlank()) arabicName else name
+        return city + (if (arabic) "، " else ", ") + countryName(locale)
+    }
+
     /** "Alexandria, Virginia, United States" */
     fun displayName(locale: Locale = Locale.getDefault()): String =
         listOf(name, region, countryName(locale)).filter { it.isNotBlank() }.joinToString(", ")

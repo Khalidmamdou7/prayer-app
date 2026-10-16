@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">أذان</string>
+
+    <string name="fajr">الفجر</string>
+    <string name="sunrise">الشروق</string>
+    <string name="dhuhr">الظهر</string>
+    <string name="asr">العصر</string>
+    <string name="maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+
+    <string name="next_prayer_in">%1$s بعد</string>
+    <string name="at_time">الساعة %1$s</string>
+    <string name="today">اليوم</string>
+    <string name="prayed_count">أدّيت %1$d من %2$d</string>
+    <string name="status_now">الآن · يتبقّى %1$s</string>
+    <string name="alert_set_off">%1$s: بدون تنبيه</string>
+    <string name="alert_set_notification">%1$s: إشعار</string>
+    <string name="alert_set_adhan">%1$s: أذان كامل</string>
+
+    <string name="custom_location">موقع مخصّص</string>
+    <string name="welcome_title">أذان</string>
+    <string name="welcome_tagline">مواقيت الصلاة والأذان وتذكير لطيف.\nبلا إعلانات، ويعمل دون إنترنت.</string>
+    <string name="welcome_where">أين تصلّي؟</string>
+    <string name="welcome_where_desc">ابحث عن مدينتك أو استخدم موقعك. يمكنك تغيير ذلك في أي وقت.</string>
+
+    <string name="channel_prayer">وقت الصلاة</string>
+    <string name="channel_reminder">تذكير «هل صلّيت؟»</string>
+    <string name="channel_adhan">الأذان</string>
+
+    <string name="notif_prayer_title">%1$s</string>
+    <string name="notif_prayer_text">حان الآن موعد صلاة %1$s</string>
+    <string name="notif_adhan_playing">يُرفع الأذان الآن</string>
+    <string name="notif_reminder_title">هل صلّيت %1$s؟</string>
+    <string name="action_prayed">تمّت الصلاة</string>
+    <string name="action_yes_prayed">نعم، صلّيت</string>
+    <string name="action_not_yet">ليس بعد</string>
+    <string name="action_stop">إيقاف الأذان</string>
+
+    <string name="in_time">بعد %1$s</string>
+    <string name="settings">الإعدادات</string>
+    <string name="back">رجوع</string>
+
+    <string name="perm_notifications">الإشعارات معطّلة، فلن يصلك الأذان ولا التذكيرات.</string>
+    <string name="perm_exact">اسمح بـ«المنبّهات والتذكيرات» ليُرفع الأذان في وقته تمامًا.</string>
+    <string name="allow">سماح</string>
+
+    <string name="section_location">الموقع</string>
+    <string name="use_current_location">استخدم موقعي الحالي</string>
+    <string name="locating">جارٍ تحديد الموقع…</string>
+    <string name="location_failed">تعذّر تحديد الموقع. جرّب بالقرب من نافذة، أو ابحث عن مدينتك.</string>
+    <string name="location_off">خدمة الموقع متوقفة على هذا الهاتف.</string>
+    <string name="location_denied">لم يُمنح إذن الموقع. يمكنك البحث عن مدينتك بدلًا من ذلك.</string>
+    <string name="location_blocked">إذن الموقع محظور. اسمح به من إعدادات التطبيق، أو ابحث عن مدينتك.</string>
+    <string name="open_settings">فتح الإعدادات</string>
+    <string name="method_auto_set">تم ضبط طريقة الحساب على «%1$s» لهذه الدولة.</string>
+    <string name="search_city">ابحث عن مدينة</string>
+    <string name="search_city_hint">مثال: القاهرة، مكة، London</string>
+    <string name="no_cities">لا توجد مدينة مطابقة. جرّب كتابة أخرى، أو أدخل الإحداثيات.</string>
+    <string name="enter_coordinates">إدخال الإحداثيات يدويًا</string>
+    <string name="latitude">خط العرض</string>
+    <string name="longitude">خط الطول</string>
+    <string name="location_name">الاسم (اختياري)</string>
+    <string name="save_location">حفظ</string>
+    <string name="invalid_coordinates">أدخل إحداثيات صحيحة</string>
+
+    <string name="section_calculation">مواقيت الصلاة</string>
+    <string name="method">طريقة الحساب</string>
+    <string name="asr_method">العصر</string>
+
+    <string name="section_alerts">الأذان والتنبيهات</string>
+    <string name="mode_off">إيقاف</string>
+    <string name="mode_notification">إشعار</string>
+    <string name="mode_adhan">أذان</string>
+    <string name="adhan_sound">صوت الأذان</string>
+    <string name="adhan_default">نغمة منبّه الهاتف</string>
+    <string name="own_file">ملف من جهازي…</string>
+    <string name="own_file_hint">اختر أي تسجيل أذان محفوظ على هاتفك</string>
+    <string name="download_size">تنزيل (%1$.1f م.ب)</string>
+    <string name="download_failed">فشل التنزيل (%1$s). تحقّق من اتصالك بالإنترنت وحاول مجددًا.</string>
+    <string name="test_adhan">تشغيل</string>
+    <string name="stop">إيقاف</string>
+
+    <string name="section_reminder">تذكير «هل صلّيت؟»</string>
+    <string name="reminder_switch">اسألني قبل انتهاء وقت كل صلاة</string>
+    <string name="minutes_before">المدة قبل انتهاء الوقت (بالدقائق)</string>
+
+    <string name="source_synced">مُزامَنة عبر الإنترنت · آخر تحديث %1$s</string>
+    <string name="source_calculated">محسوبة على الجهاز</string>
+
+    <string name="section_sync">المزامنة عبر الإنترنت</string>
+    <string name="sync_switch">زامِن المواقيت عند توفّر الإنترنت</string>
+    <string name="sync_desc">ينزّل مواقيت شهر إلى شهرين من aladhan.com لموقعك وطريقة الحساب، ليظل التطبيق يعمل دون إنترنت. وبدون مزامنة تُحسب المواقيت على الهاتف.</string>
+    <string name="sync_now">زامِن الآن</string>
+    <string name="sync_never">لم تتم المزامنة بعد</string>
+    <string name="sync_last">آخر مزامنة %1$s · الأيام المحفوظة: %2$d</string>
+    <string name="sync_error">فشلت آخر محاولة: %1$s. ستُعاد المحاولة عند الاتصال.</string>
+
+    <string name="section_adjust">ضبط دقيق للمواقيت</string>
+    <string name="adjust_none">بدون تعديلات</string>
+    <string name="about_credits">تطبيق أذان بلا إعلانات ولا تتبّع. المواقيت من aladhan.com ومن الحساب على الجهاز. بيانات المدن © GeoNames ‏(CC BY 4.0). تسجيلات الأذان المدمجة من ويكيميديا كومنز، ويُذكر صاحب كل تسجيل بجانبه.</string>
+    <string name="adjust_desc">قدّم أو أخّر أي وقت بالدقائق ليطابق مسجدك.</string>
+
+    <string name="section_reliability">الموثوقية وحول التطبيق</string>
+    <string name="battery_desc">بعض الهواتف توقف المنبّهات لتوفير البطارية. إن تأخّر الأذان أو لم يُرفع، استثنِ تطبيق أذان من تحسين البطارية.</string>
+    <string name="battery_settings">إعدادات البطارية</string>
+
+    <!-- طرق الحساب -->
+    <string name="method_egypt">الهيئة المصرية العامة للمساحة</string>
+    <string name="method_mwl">رابطة العالم الإسلامي</string>
+    <string name="method_umm_al_qura">أم القرى، مكة المكرمة</string>
+    <string name="method_isna">الجمعية الإسلامية لأمريكا الشمالية (ISNA)</string>
+    <string name="method_karachi">جامعة العلوم الإسلامية، كراتشي</string>
+    <string name="method_dubai">دبي</string>
+    <string name="method_kuwait">الكويت</string>
+    <string name="method_qatar">قطر</string>
+    <string name="method_singapore">سنغافورة / ماليزيا / إندونيسيا</string>
+    <string name="method_turkey">رئاسة الشؤون الدينية، تركيا</string>
+    <string name="method_tehran">معهد الجيوفيزياء، طهران</string>
+    <string name="method_jordan">الأردن</string>
+    <string name="method_morocco">المغرب</string>
+    <string name="method_algeria">الجزائر</string>
+    <string name="method_tunisia">تونس</string>
+    <string name="method_jakim">جاكيم، ماليزيا</string>
+    <string name="method_kemenag">وزارة الشؤون الدينية، إندونيسيا</string>
+    <string name="method_france">اتحاد المنظمات الإسلامية، فرنسا</string>
+    <string name="method_russia">الإدارة الدينية لمسلمي روسيا</string>
+    <string name="method_moonsighting">لجنة رؤية الهلال (بريطانيا وأمريكا الشمالية)</string>
+    <string name="asr_standard">الجمهور</string>
+    <string name="asr_hanafi">الحنفي</string>
+
+    <!-- أصوات الأذان المدمجة -->
+    <string name="voice_beautiful">أذان جميل</string>
+    <string name="voice_long">أذان (طويل)</string>
+    <string name="voice_aaqib">أذان — عاقب عزيز</string>
+    <string name="voice_short">أذان قصير</string>
+
+    <string name="duration_hm">%1$d س %2$d د</string>
+    <string name="duration_m">%1$d د</string>
+    <string name="hijri_suffix">%1$s هـ</string>
+
+    <string name="section_language">اللغة</string>
+    <string name="language_system">لغة الهاتف</string>
+
+    <plurals name="notif_reminder_text">
+        <item quantity="zero">ينتهي وقت %1$s الآن</item>
+        <item quantity="one">ينتهي وقت %1$s بعد دقيقة واحدة</item>
+        <item quantity="two">ينتهي وقت %1$s بعد دقيقتين</item>
+        <item quantity="few">ينتهي وقت %1$s بعد %2$d دقائق</item>
+        <item quantity="many">ينتهي وقت %1$s بعد %2$d دقيقة</item>
+        <item quantity="other">ينتهي وقت %1$s بعد %2$d دقيقة</item>
+    </plurals>
+    <plurals name="reminder_desc">
+        <item quantity="zero">عند انتهاء الوقت يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+        <item quantity="one">قبل الأذان التالي بدقيقة واحدة (وقبل الشروق للفجر) يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+        <item quantity="two">قبل الأذان التالي بدقيقتين (وقبل الشروق للفجر) يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+        <item quantity="few">قبل الأذان التالي بـ%1$d دقائق (وقبل الشروق للفجر) يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+        <item quantity="many">قبل الأذان التالي بـ%1$d دقيقة (وقبل الشروق للفجر) يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+        <item quantity="other">قبل الأذان التالي بـ%1$d دقيقة (وقبل الشروق للفجر) يصلك إشعار يسألك هل صلّيت. ولا يظهر إن كنت قد علّمت الصلاة بأنها أُدّيت.</item>
+    </plurals>
+</resources>

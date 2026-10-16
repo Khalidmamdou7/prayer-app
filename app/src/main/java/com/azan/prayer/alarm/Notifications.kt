@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.azan.prayer.R
+import com.azan.prayer.data.AppLanguage
 import com.azan.prayer.prayer.Prayer
 import com.azan.prayer.ui.MainActivity
 import java.time.LocalDate
@@ -26,7 +27,8 @@ object Notifications {
 
     const val ID_ADHAN_SERVICE = 1
 
-    fun createChannels(context: Context) {
+    fun createChannels(base: Context) {
+        val context = AppLanguage.localized(base)
         val nm = context.getSystemService(NotificationManager::class.java)
         val alarmAudio = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
@@ -74,7 +76,8 @@ object Notifications {
     fun reminderNotificationId(prayer: Prayer) = 2000 + prayer.ordinal
 
     /** Plain "it's time for X" notification with the default notification sound. */
-    fun showPrayerTime(context: Context, prayer: Prayer, date: LocalDate) {
+    fun showPrayerTime(base: Context, prayer: Prayer, date: LocalDate) {
+        val context = AppLanguage.localized(base)
         val name = context.getString(prayer.label)
         val notification = NotificationCompat.Builder(context, CHANNEL_PRAYER)
             .setSmallIcon(R.drawable.ic_notification)
@@ -90,13 +93,14 @@ object Notifications {
     }
 
     /** "Have you prayed X?" shown shortly before X's time ends. */
-    fun showReminder(context: Context, prayer: Prayer, date: LocalDate, minutesLeft: Long) {
+    fun showReminder(base: Context, prayer: Prayer, date: LocalDate, minutesLeft: Long) {
+        val context = AppLanguage.localized(base)
         val name = context.getString(prayer.label)
         val id = reminderNotificationId(prayer)
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.notif_reminder_title, name))
-            .setContentText(context.getString(R.string.notif_reminder_text, name, minutesLeft))
+            .setContentText(context.resources.getQuantityString(R.plurals.notif_reminder_text, minutesLeft.toInt(), name, minutesLeft.toInt()))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(openAppIntent(context))
@@ -107,8 +111,9 @@ object Notifications {
         post(context, id, notification)
     }
 
-    fun adhanPlaying(context: Context, prayerName: String, stopIntent: PendingIntent): Notification =
-        NotificationCompat.Builder(context, CHANNEL_ADHAN)
+    fun adhanPlaying(base: Context, prayerName: String, stopIntent: PendingIntent): Notification {
+        val context = AppLanguage.localized(base)
+        return NotificationCompat.Builder(context, CHANNEL_ADHAN)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.notif_prayer_title, prayerName))
             .setContentText(context.getString(R.string.notif_adhan_playing))
@@ -119,6 +124,7 @@ object Notifications {
             .setOngoing(true)
             .addAction(0, context.getString(R.string.action_stop), stopIntent)
             .build()
+    }
 
     private fun prayedIntent(context: Context, prayer: Prayer, date: LocalDate, notificationId: Int): PendingIntent {
         val intent = Intent(context, ReminderActionReceiver::class.java).apply {

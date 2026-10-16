@@ -34,41 +34,9 @@ class ScreenshotTest {
     @Before
     fun onlyWhenAsked() = Assume.assumeTrue(System.getProperty("screenshots") == "true")
 
-    private val today = LocalDate.of(2026, 10, 15)
-
-    private fun row(p: Prayer, time: String, phase: Phase, remaining: Duration? = null, prayed: Boolean? = null, mode: AlertMode = AlertMode.NOTIFICATION) =
-        PrayerRowState(p, time, phase, remaining, if (p.isPrayer) mode else null, prayed, today)
-
-    private val state = HomeState(
-        locationName = "Cairo, Egypt",
-        gregorianDate = "Thursday, October 15, 2026",
-        hijriDate = hijri(today),
-        next = Prayer.ASR,
-        nextTime = "15:58",
-        remaining = Duration.ofSeconds(1 * 3600 + 23 * 60 + 41),
-        previous = Prayer.DHUHR,
-        previousTime = "12:42",
-        progress = 0.58f,
-        rows = listOf(
-            row(Prayer.FAJR, "05:30", Phase.PASSED, prayed = true, mode = AlertMode.ADHAN),
-            row(Prayer.SUNRISE, "06:57", Phase.PASSED),
-            row(Prayer.DHUHR, "12:42", Phase.CURRENT, Duration.ofMinutes(83), prayed = false),
-            row(Prayer.ASR, "15:58", Phase.NEXT, Duration.ofMinutes(83)),
-            row(Prayer.MAGHRIB, "18:24", Phase.UPCOMING, Duration.ofMinutes(229), mode = AlertMode.ADHAN),
-            row(Prayer.ISHA, "19:42", Phase.UPCOMING, Duration.ofMinutes(307), mode = AlertMode.OFF),
-        ),
-        syncedAgo = "2 hours ago",
-        notificationsOff = false,
-        exactAlarmsOff = false,
-    )
-
-    private val settings = AppSettings(
-        latitude = 30.0444, longitude = 31.2357, locationName = "Cairo, Egypt",
-        method = CalculationMethod.EGYPT, asrMethod = AsrMethod.STANDARD,
-        alertModes = Prayer.prayers.associateWith { AlertMode.NOTIFICATION } + (Prayer.FAJR to AlertMode.ADHAN),
-        reminderEnabled = true, reminderMinutes = 20, adhanUri = null, adhanName = null,
-        syncEnabled = true, adjustments = Prayer.entries.associateWith { 0 },
-    )
+    private val state = Samples.state
+    private val settings = Samples.settings
+    private fun arabicState() = Samples.arabicState()
 
     private fun home(dark: Boolean, s: HomeState = state) = compose.setContent {
         AzanTheme(darkTheme = dark) { HomeContent(s, {}, { AlertMode.OFF }, { _, _ -> }, {}, {}) }
@@ -99,7 +67,41 @@ class ScreenshotTest {
     }
 
     @Test
-    @Config(qualifiers = "w400dp-h2600dp-xxhdpi")
+    @Config(qualifiers = "ar-rEG-ldrtl-w400dp-h900dp-xxhdpi")
+    fun homeArabic() {
+        home(dark = false, arabicState())
+        compose.onRoot().captureRoboImage("../docs/screenshots/home_ar.png")
+    }
+
+    @Test
+    @Config(qualifiers = "ar-rEG-ldrtl-w400dp-h900dp-xxhdpi")
+    fun homeArabicDark() {
+        home(dark = true, arabicState())
+        compose.onRoot().captureRoboImage("../docs/screenshots/home_ar_dark.png")
+    }
+
+    @Test
+    @Config(qualifiers = "ar-rEG-ldrtl-w400dp-h900dp-xxhdpi")
+    fun welcomeArabic() {
+        compose.setContent { AzanTheme(darkTheme = false) { WelcomeScreen(settings.copy(latitude = null, longitude = null), {}) } }
+        compose.onRoot().captureRoboImage("../docs/screenshots/welcome_ar.png")
+    }
+
+    @Test
+    @Config(qualifiers = "ar-rEG-ldrtl-w400dp-h2700dp-xxhdpi")
+    fun settingsArabic() {
+        compose.setContent { AzanTheme(darkTheme = false) { SettingsScreen(settings.copy(locationName = "القاهرة، مصر"), {}, {}) } }
+        compose.onRoot().captureRoboImage("../docs/screenshots/settings_ar.png")
+    }
+
+    @Test
+    fun welcomeDark() {
+        compose.setContent { AzanTheme(darkTheme = true) { WelcomeScreen(settings.copy(latitude = null, longitude = null), {}) } }
+        compose.onRoot().captureRoboImage("../docs/screenshots/welcome_dark.png")
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h2700dp-xxhdpi")
     fun settingsLight() {
         compose.setContent { AzanTheme(darkTheme = false) { SettingsScreen(settings, {}, {}) } }
         compose.onRoot().captureRoboImage("../docs/screenshots/settings.png")

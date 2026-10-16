@@ -36,7 +36,9 @@ object AladhanApi {
         month: Int,
     ): String = String.format(
         Locale.US,
-        "%s/%d/%d?latitude=%.6f&longitude=%.6f&method=%d&school=%d&iso8601=true",
+        // Rounded to ~1 km: prayer times change by about a minute per 15–20 km,
+        // and the service doesn't need to know exactly where the user is.
+        "%s/%d/%d?latitude=%.2f&longitude=%.2f&method=%d&school=%d&iso8601=true",
         BASE, year, month, latitude, longitude, method.aladhanId, asr.aladhanSchool,
     )
 

@@ -51,6 +51,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.azan.prayer.R
+import androidx.compose.ui.res.pluralStringResource
+import com.azan.prayer.data.AppLanguage
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
@@ -110,11 +112,38 @@ fun SettingsScreen(settings: AppSettings, onChange: (AppSettings) -> Unit, onBac
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             LocationSection(settings, onChange)
+            LanguageSection()
             CalculationSection(settings, onChange)
             AlertsSection(settings, onChange)
             ReminderSection(settings, onChange)
             SyncSection(settings, onChange)
             ReliabilitySection()
+        }
+    }
+}
+
+@Composable
+private fun LanguageSection() {
+    val context = LocalContext.current
+    var current by remember { mutableStateOf(AppLanguage.current(context)) }
+    val labels = mapOf(
+        AppLanguage.SYSTEM to stringResource(R.string.language_system),
+        "en" to stringResource(R.string.language_en),
+        "ar" to stringResource(R.string.language_ar),
+    )
+    Section(stringResource(R.string.section_language)) {
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            AppLanguage.choices.forEachIndexed { i, tag ->
+                SegmentedButton(
+                    selected = current == tag,
+                    onClick = {
+                        current = tag
+                        AppLanguage.set(context, tag)
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(i, AppLanguage.choices.size),
+                    icon = {},
+                ) { Text(labels.getValue(tag)) }
+            }
         }
     }
 }
@@ -151,7 +180,7 @@ private fun CalculationSection(settings: AppSettings, onChange: (AppSettings) ->
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
-                value = settings.method.title,
+                value = stringResource(settings.method.title),
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(R.string.method)) },
@@ -164,7 +193,7 @@ private fun CalculationSection(settings: AppSettings, onChange: (AppSettings) ->
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 CalculationMethod.entries.forEach { method ->
                     DropdownMenuItem(
-                        text = { Text(method.title) },
+                        text = { Text(stringResource(method.title)) },
                         onClick = {
                             expanded = false
                             onChange(settings.copy(method = method))
@@ -181,7 +210,7 @@ private fun CalculationSection(settings: AppSettings, onChange: (AppSettings) ->
                     onClick = { onChange(settings.copy(asrMethod = asr)) },
                     shape = SegmentedButtonDefaults.itemShape(i, AsrMethod.entries.size),
                     icon = {},
-                ) { Text(if (asr == AsrMethod.STANDARD) "Standard" else "Hanafi") }
+                ) { Text(stringResource(asr.title)) }
             }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -250,7 +279,7 @@ private fun ReminderSection(settings: AppSettings, onChange: (AppSettings) -> Un
             Switch(settings.reminderEnabled, { onChange(settings.copy(reminderEnabled = it)) })
         }
         Text(
-            stringResource(R.string.reminder_desc, settings.reminderMinutes),
+            pluralStringResource(R.plurals.reminder_desc, settings.reminderMinutes, settings.reminderMinutes),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -264,7 +293,7 @@ private fun ReminderSection(settings: AppSettings, onChange: (AppSettings) -> Un
                         onClick = { onChange(settings.copy(reminderMinutes = minutes)) },
                         shape = SegmentedButtonDefaults.itemShape(i, options.size),
                         icon = {},
-                    ) { Text("$minutes") }
+                    ) { Text(String.format(appLocale(), "%d", minutes)) }
                 }
             }
         }
@@ -314,12 +343,13 @@ private fun Adjustments(settings: AppSettings, onChange: (AppSettings) -> Unit) 
     var open by remember { mutableStateOf(settings.adjustments.values.any { it != 0 }) }
     val changed = Prayer.entries.filter { (settings.adjustments[it] ?: 0) != 0 }
     val names = Prayer.entries.associateWith { stringResource(it.label) }
+    val locale = appLocale()
     val summary = if (changed.isEmpty()) {
         stringResource(R.string.adjust_none)
     } else {
         changed.joinToString(", ") { p ->
             val m = settings.adjustments.getValue(p)
-            "${names.getValue(p)} ${if (m > 0) "+$m" else "−${-m}"}"
+            "${names.getValue(p)} ${signedMinutes(m, locale)}"
         }
     }
     Row(
@@ -355,11 +385,7 @@ private fun Adjustments(settings: AppSettings, onChange: (AppSettings) -> Unit) 
                 Text("−", style = MaterialTheme.typography.titleMedium)
             }
             Text(
-                when {
-                    minutes > 0 -> "+$minutes"
-                    minutes < 0 -> "−${-minutes}"
-                    else -> "0"
-                },
+                signedMinutes(minutes, appLocale()),
                 Modifier.width(48.dp),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium.tabular(),
@@ -372,6 +398,13 @@ private fun Adjustments(settings: AppSettings, onChange: (AppSettings) -> Unit) 
 }
 
 private const val MAX_ADJUST = 30
+
+/** "+2", "−3" or "0", in the locale's digits. */
+private fun signedMinutes(m: Int, locale: java.util.Locale): String = when {
+    m > 0 -> "+" + String.format(locale, "%d", m)
+    m < 0 -> "−" + String.format(locale, "%d", -m)
+    else -> String.format(locale, "%d", 0)
+}
 
 @Composable
 private fun ReliabilitySection() {

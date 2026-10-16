@@ -84,10 +84,6 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.time.chrono.HijrahChronology
-import java.time.chrono.HijrahDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 enum class Phase { PASSED, CURRENT, NEXT, UPCOMING }
 
@@ -145,7 +141,9 @@ fun HomeScreen(
     val source = remember(settings, synced) { settings.timesSource(synced) } ?: return
     val schedule = remember(source) { PrayerSchedule(source::timesFor) }
     val is24h = DateFormat.is24HourFormat(context)
-    val formatter = remember(is24h) { DateTimeFormatter.ofPattern(if (is24h) "HH:mm" else "h:mm a") }
+    val locale = appLocale()
+    val formatter = remember(is24h, locale) { clockFormatter(is24h, locale) }
+    val hijriSuffix = stringResource(R.string.hijri_suffix)
     val notificationsOff = remember(refreshKey) { !Notifications.canPost(context) }
     val exactOff = remember(refreshKey) { !AlarmScheduler.canScheduleExact(context) }
 
@@ -188,8 +186,8 @@ fun HomeScreen(
     val span = Duration.between(previousTime, nextTime).seconds.coerceAtLeast(1)
     val state = HomeState(
         locationName = settings.locationName.ifBlank { "%.3f, %.3f".format(settings.latitude, settings.longitude) },
-        gregorianDate = today.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
-        hijriDate = hijri(today),
+        gregorianDate = gregorianDate(today, locale),
+        hijriDate = hijriDate(today, locale)?.let { hijriSuffix.format(it) },
         next = next,
         nextTime = nextTime.format(formatter),
         remaining = Duration.between(now, nextTime),
@@ -225,10 +223,6 @@ fun HomeScreen(
         },
     )
 }
-
-fun hijri(date: LocalDate): String? = runCatching {
-    HijrahDate.from(date).format(DateTimeFormatter.ofPattern("d MMMM y").withChronology(HijrahChronology.INSTANCE)) + " AH"
-}.getOrNull()
 
 @Composable
 fun HomeContent(
@@ -362,7 +356,7 @@ private fun Hero(state: HomeState, onOpenSettings: () -> Unit) {
                 )
             }
             Text(
-                PrayerSchedule.formatRemaining(state.remaining, withSeconds = true),
+                countdown(state.remaining, appLocale()),
                 color = hero.content,
                 style = MaterialTheme.typography.displayLarge.tabular(),
             )
@@ -473,16 +467,20 @@ private fun PrayerRow(row: PrayerRowState, onCycleAlert: () -> Unit, onPrayedCha
                     fontWeight = if (emphasized) FontWeight.SemiBold else FontWeight.Medium,
                     color = if (dim) scheme.onSurfaceVariant else scheme.onSurface,
                 )
-                Text(
-                    stringResource(row.prayer.arabicLabel),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant.copy(alpha = 0.8f),
-                    modifier = Modifier.padding(start = 8.dp, bottom = 1.dp),
-                )
+                // In Arabic the main label already is the Arabic name.
+                val arabic = stringResource(row.prayer.arabicLabel)
+                if (arabic != stringResource(row.prayer.label)) {
+                    Text(
+                        arabic,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        modifier = Modifier.padding(start = 8.dp, bottom = 1.dp),
+                    )
+                }
             }
             val status = when (row.phase) {
-                Phase.CURRENT -> stringResource(R.string.status_now, PrayerSchedule.formatRemaining(row.remaining!!, false))
-                Phase.NEXT, Phase.UPCOMING -> stringResource(R.string.in_time, PrayerSchedule.formatRemaining(row.remaining!!, false))
+                Phase.CURRENT -> stringResource(R.string.status_now, shortDuration(row.remaining!!))
+                Phase.NEXT, Phase.UPCOMING -> stringResource(R.string.in_time, shortDuration(row.remaining!!))
                 Phase.PASSED -> null
             }
             if (status != null) {

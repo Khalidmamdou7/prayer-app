@@ -117,11 +117,11 @@ fun LocationPicker(settings: AppSettings, onChange: (AppSettings) -> Unit) {
             settings.copy(
                 latitude = latitude,
                 longitude = longitude,
-                locationName = listOf(city.name, city.countryName()).joinToString(", "),
+                locationName = city.localName(context.resources.configuration.locales[0]),
                 method = method ?: settings.method,
             ),
         )
-        notice = if (method != null && method != settings.method) Notice(s.methodSet.format(method.title)) else null
+        notice = if (method != null && method != settings.method) Notice(s.methodSet.format(context.getString(method.title))) else null
     }
 
     fun locate() {

@@ -1,0 +1,35 @@
+Azan is a calm, ad-free prayer times app. No ads, no tracking, no account.
+
+ACCURATE PRAYER TIMES
+• Times are downloaded from aladhan.com when you're online and stored for the coming weeks, so the app keeps working offline.
+• Without internet, times are calculated on your phone.
+• 20 calculation methods, including Egyptian, Umm al-Qura, Muslim World League, ISNA, Moonsighting Committee, Karachi, Gulf, Turkey, Morocco, Algeria, Tunisia, Jordan, Malaysia, Indonesia, France and Russia.
+• Standard or Hanafi Asr.
+• Shift any time by a few minutes to match your local mosque.
+
+ADHAN OR NOTIFICATION, PER PRAYER
+• For each prayer, choose the full adhan, a notification, or nothing.
+• Pick a built-in adhan voice, any recording on your phone, or your alarm sound.
+• Stop the adhan from the notification at any time.
+
+"HAVE YOU PRAYED?"
+• Before each prayer's time ends (20 minutes by default), Azan gently asks whether you've prayed it.
+• Answer from the notification. If you've already ticked the prayer, there's no reminder.
+
+ALWAYS KNOW WHAT'S NEXT
+• A live countdown to the next prayer.
+• Time remaining for every prayer.
+• Today's progress at a glance.
+• Gregorian and Hijri dates.
+
+FIND YOUR CITY OFFLINE
+• Search 34,000 cities in English or Arabic, or use your location.
+• Picking a city sets the usual calculation method for that country.
+
+ARABIC AND ENGLISH
+• Full Arabic interface with right-to-left layout and Arabic digits. Switch languages in Settings.
+
+PRIVATE BY DESIGN
+• No ads, no analytics and no account.
+• Your settings stay on your phone.
+• For online sync, only an approximate location (rounded to about 1 km) is sent to aladhan.com. You can turn sync off.

@@ -1,23 +1,66 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+/**
+ * Release signing comes from keystore.properties (local, git-ignored) or, on CI, from the
+ * ANDROID_KEYSTORE_* environment variables. Without either, release builds are unsigned.
+ */
+val signing: Map<String, String>? = run {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) {
+        Properties().apply { file.inputStream().use(::load) }.let { p ->
+            mapOf(
+                "storeFile" to rootProject.file(p.getProperty("storeFile")).path,
+                "storePassword" to p.getProperty("storePassword"),
+                "keyAlias" to p.getProperty("keyAlias"),
+                "keyPassword" to p.getProperty("keyPassword"),
+            )
+        }
+    } else {
+        System.getenv("ANDROID_KEYSTORE_PATH")?.let { path ->
+            mapOf(
+                "storeFile" to path,
+                "storePassword" to System.getenv("ANDROID_KEYSTORE_PASSWORD").orEmpty(),
+                "keyAlias" to System.getenv("ANDROID_KEY_ALIAS").orEmpty(),
+                "keyPassword" to System.getenv("ANDROID_KEY_PASSWORD").orEmpty(),
+            )
+        }
+    }
+}
+
 android {
     namespace = "com.azan.prayer"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.azan.prayer"
+        // The Play Store identity: it can never change once the app is published.
+        applicationId = "io.github.khalidmamdou7.azan"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        // CI passes -PversionCode=<run number> -PversionName=<tag> for store builds.
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 1
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0"
+    }
+
+    signingConfigs {
+        if (signing != null) {
+            create("release") {
+                storeFile = file(signing.getValue("storeFile"))
+                storePassword = signing["storePassword"]
+                keyAlias = signing["keyAlias"]
+                keyPassword = signing["keyPassword"]
+            }
+        }
     }
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -33,6 +76,13 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    bundle {
+        // Keep every language in every install: the app lets people switch language in-app,
+        // and Play would otherwise only deliver the phone's language.
+        language {
+            enableSplit = false
+        }
     }
     testOptions {
         unitTests {
@@ -58,6 +108,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.work:work-runtime-ktx:2.10.0")

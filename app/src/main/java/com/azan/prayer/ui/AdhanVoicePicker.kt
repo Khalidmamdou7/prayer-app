@@ -44,7 +44,7 @@ fun AdhanVoicePicker(settings: AppSettings, onChange: (AppSettings) -> Unit, onC
     val customFile = settings.adhanUri != null && selectedVoice == null
 
     fun select(voice: AdhanVoice) =
-        onChange(settings.copy(adhanUri = AdhanVoices.uri(context, voice), adhanName = voice.title))
+        onChange(settings.copy(adhanUri = AdhanVoices.uri(context, voice), adhanName = voice.id))
 
     fun download(voice: AdhanVoice) {
         if (voice.id in progress) return
@@ -75,7 +75,7 @@ fun AdhanVoicePicker(settings: AppSettings, onChange: (AppSettings) -> Unit, onC
             val p = progress[voice.id]
             Choice(
                 selected = selectedVoice == voice,
-                title = voice.title,
+                title = stringResource(voice.title),
                 subtitle = voice.credit,
                 onClick = { if (downloaded) select(voice) else download(voice) },
                 trailing = {

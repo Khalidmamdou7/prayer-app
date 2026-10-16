@@ -17,6 +17,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import com.azan.prayer.data.AppLanguage
 import com.azan.prayer.data.SettingsStore
 import com.azan.prayer.prayer.Prayer
 
@@ -101,7 +102,7 @@ class AdhanService : Service() {
             val settings = SettingsStore(context).load()
             val intent = Intent(context, AdhanService::class.java).apply {
                 action = ACTION_PLAY
-                putExtra(EXTRA_PRAYER_NAME, context.getString(prayer.label))
+                putExtra(EXTRA_PRAYER_NAME, AppLanguage.localized(context).getString(prayer.label))
                 settings.adhanUri?.let { putExtra(EXTRA_URI, it.toString()) }
             }
             return try {

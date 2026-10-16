@@ -36,7 +36,7 @@ class SyncTest {
     fun buildsUrl() {
         val url = AladhanApi.monthUrl(30.0444, 31.2357, CalculationMethod.EGYPT, AsrMethod.HANAFI, 2026, 10)
         assertEquals(
-            "https://api.aladhan.com/v1/calendar/2026/10?latitude=30.044400&longitude=31.235700&method=5&school=1&iso8601=true",
+            "https://api.aladhan.com/v1/calendar/2026/10?latitude=30.04&longitude=31.24&method=5&school=1&iso8601=true",
             url,
         )
     }
