@@ -119,8 +119,8 @@ class StoreAssetsTest {
         }
     }
 
-    private fun welcome(locale: String) = capture(out(locale, "phoneScreenshots/3_welcome.png")) {
-        WelcomeScreen(Samples.settings.copy(latitude = null, longitude = null), {})
+    private fun welcome(locale: String) = capture(out(locale, "phoneScreenshots/3_setup.png")) {
+        SetupScreen(Samples.settings.copy(onboarded = false, alertModes = Prayer.prayers.associateWith { AlertMode.NOTIFICATION }), {}, {})
     }
 
     private fun settings(locale: String, name: String) = capture(out(locale, "phoneScreenshots/4_settings.png")) {

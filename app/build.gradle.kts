@@ -33,6 +33,17 @@ val signing: Map<String, String>? = run {
     }
 }
 
+/** Single source of truth: version.properties. A tag v1.2.3 must match versionName=1.2.3. */
+val appVersionName: String = Properties().apply {
+    rootProject.file("version.properties").inputStream().use(::load)
+}.getProperty("versionName")
+
+/** 1.2.3 → 10203. Always increases with the version, which Android and Play require for updates. */
+val appVersionCode: Int = appVersionName.split(".").map(String::toInt).let { parts ->
+    require(parts.size == 3 && parts.all { it in 0..99 }) { "versionName must look like 1.2.3 (each part 0–99)" }
+    parts[0] * 10000 + parts[1] * 100 + parts[2]
+}
+
 android {
     namespace = "com.azan.prayer"
     compileSdk = 36
@@ -42,12 +53,19 @@ android {
         applicationId = "io.github.khalidmamdou7.azan"
         minSdk = 26
         targetSdk = 36
-        // CI passes -PversionCode=<run number> -PversionName=<tag> for store builds.
-        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 1
-        versionName = (project.findProperty("versionName") as String?) ?: "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
 
     signingConfigs {
+        // A fixed, committed debug key (the standard public "android" credentials), so every
+        // debug build, including the APKs from GitHub Actions, installs over the previous one.
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         if (signing != null) {
             create("release") {
                 storeFile = file(signing.getValue("storeFile"))
@@ -59,6 +77,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Lets a test build sit next to the Play Store version on the same phone.
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true

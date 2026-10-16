@@ -9,7 +9,7 @@ What's already prepared in this repo, and what only you can do in the Play Conso
 | Target API 36 (Android 16), required for new apps since 31 Aug 2026 | `app/build.gradle.kts` |
 | Package name `io.github.khalidmamdou7.azan` | `app/build.gradle.kts`, `applicationId`. **It can never change after the first upload**, so change it now if you want a different one. |
 | Signed Android App Bundle (`.aab`) | `./gradlew bundleRelease`, signed from `keystore.properties` or CI secrets |
-| Version code and name per release | `-PversionCode` / `-PversionName`; CI uses the run number and the tag |
+| Version code and name, from one file | `version.properties` (`versionName=1.0.0` → version code 10000). Every release must raise it. |
 | All languages in every install, so the in-app Arabic/English switch works | `bundle { language { enableSplit = false } }` |
 | No ads SDKs and no analytics | Nothing to declare beyond "No ads" |
 | Store listing text, English and Arabic | `fastlane/metadata/android/{en-US,ar}/` |
@@ -37,17 +37,17 @@ This creates `upload-keystore.jks` and `keystore.properties`. Both are git-ignor
 On your computer:
 
 ```
-./gradlew bundleRelease -PversionCode=1 -PversionName=1.0.0
+./gradlew bundleRelease
 # → app/build/outputs/bundle/release/app-release.aab
 ```
 
-Or on GitHub: add the secrets the script prints (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`), then push a tag:
+Or on GitHub: add the secrets the script prints (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`), then push a tag that matches `version.properties`:
 
 ```
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
-The **Release (Google Play)** workflow builds and signs the bundle and attaches it as an artifact. The version code is the workflow run number, so it always increases.
+The **Release (Google Play)** workflow builds and signs the bundle and attaches it as an artifact.
 
 ### 4. Create the app in Play Console
 
@@ -109,4 +109,10 @@ Review usually takes from a few hours to a few days.
 
 ## For every update
 
-Bump nothing by hand. Tag a new version (`v1.0.1`, …), and the workflow assigns a higher version code. Add `changelogs/<versionCode>.txt` if you upload release notes with fastlane.
+1. Raise `versionName` in `version.properties`, e.g. `1.0.0` → `1.0.1` for fixes or `1.1.0` for features. The version code follows automatically (`1.0.1` → 10001, `1.1.0` → 10100), so Play and Android always treat it as newer.
+2. Add release notes as `fastlane/metadata/android/{en-US,ar}/changelogs/<versionCode>.txt`.
+3. Commit, then tag the same version: `git tag v1.0.1 && git push origin v1.0.1`. The workflow refuses to build if the tag and `version.properties` disagree, so you can't accidentally upload an old version number.
+
+Updates keep everything users set up: settings, location and prayed ticks live in the app's storage, and alarms are re-armed automatically after the update is installed.
+
+**Test builds:** debug APKs (from the **Build APK** workflow) are installed as a separate app, *io.github.khalidmamdou7.azan.debug*, signed with the committed `app/debug.keystore`. Each new test build installs over the previous one, and it can sit next to the Play version.

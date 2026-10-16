@@ -29,6 +29,10 @@ data class AppSettings(
     val syncEnabled: Boolean,
     /** Minutes added to each time (negative = earlier), to match a local mosque. */
     val adjustments: Map<Prayer, Int>,
+    /** The first-run setup (location, then alerts and reminder) has been completed. */
+    val onboarded: Boolean = true,
+    /** The one-time "how to use" tip on the home screen has been dismissed. */
+    val homeTipSeen: Boolean = true,
 ) {
     val hasLocation: Boolean get() = latitude != null && longitude != null
 
@@ -73,6 +77,10 @@ class SettingsStore(context: Context) {
         adhanName = prefs.getString(KEY_ADHAN_NAME, null),
         syncEnabled = prefs.getBoolean(KEY_SYNC_ENABLED, true),
         adjustments = Prayer.entries.associateWith { prefs.getInt(KEY_ADJUST_PREFIX + it.name, 0) },
+        // People updating from a version without onboarding already have a location: don't
+        // send them through setup again.
+        onboarded = prefs.getBoolean(KEY_ONBOARDED, prefs.getString(KEY_LAT, null) != null),
+        homeTipSeen = prefs.getBoolean(KEY_HOME_TIP_SEEN, false),
     )
 
     fun save(s: AppSettings) {
@@ -89,6 +97,8 @@ class SettingsStore(context: Context) {
             putString(KEY_ADHAN_NAME, s.adhanName)
             putBoolean(KEY_SYNC_ENABLED, s.syncEnabled)
             s.adjustments.forEach { (prayer, minutes) -> putInt(KEY_ADJUST_PREFIX + prayer.name, minutes) }
+            putBoolean(KEY_ONBOARDED, s.onboarded)
+            putBoolean(KEY_HOME_TIP_SEEN, s.homeTipSeen)
         }.apply()
     }
 
@@ -126,5 +136,7 @@ class SettingsStore(context: Context) {
         private const val KEY_PRAYED_PREFIX = "prayed_"
         private const val KEY_SYNC_ENABLED = "sync_enabled"
         private const val KEY_ADJUST_PREFIX = "adjust_"
+        private const val KEY_ONBOARDED = "onboarded"
+        private const val KEY_HOME_TIP_SEEN = "home_tip_seen"
     }
 }

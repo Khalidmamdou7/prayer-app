@@ -114,6 +114,8 @@ data class HomeState(
     val syncedAgo: String?,
     val notificationsOff: Boolean,
     val exactAlarmsOff: Boolean,
+    /** First visits only: how to change alerts, tick prayers and find settings. */
+    val showTip: Boolean = false,
 ) {
     val prayedCount get() = rows.count { it.prayer.isPrayer && it.prayed == true }
 }
@@ -199,6 +201,7 @@ fun HomeScreen(
             ?.let { DateUtils.getRelativeTimeSpanString(it.toEpochMilli()).toString() },
         notificationsOff = notificationsOff,
         exactAlarmsOff = exactOff && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+        showTip = !settings.homeTipSeen,
     )
 
     HomeContent(
@@ -214,6 +217,7 @@ fun HomeScreen(
             prayedVersion++
         },
         onFixNotifications = onRequestNotifications,
+        onDismissTip = { onChange(settings.copy(homeTipSeen = true)) },
         onFixExactAlarms = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 context.startActivity(
@@ -232,6 +236,7 @@ fun HomeContent(
     onPrayedChange: (PrayerRowState, Boolean) -> Unit,
     onFixNotifications: () -> Unit,
     onFixExactAlarms: () -> Unit,
+    onDismissTip: () -> Unit = {},
 ) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -269,6 +274,7 @@ fun HomeContent(
                 if (state.exactAlarmsOff) {
                     Notice(stringResource(R.string.perm_exact), stringResource(R.string.allow), onFixExactAlarms)
                 }
+                if (state.showTip) HomeTip(onDismissTip, onOpenSettings)
                 TodayHeader(state)
                 Surface(
                     shape = MaterialTheme.shapes.large,
@@ -527,6 +533,26 @@ private fun PrayerRow(row: PrayerRowState, onCycleAlert: () -> Unit, onPrayedCha
             )
         } else {
             Spacer(Modifier.width(40.dp))
+        }
+    }
+}
+
+@Composable
+private fun HomeTip(onDismiss: () -> Unit, onOpenSettings: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(shape = MaterialTheme.shapes.large, color = scheme.primaryContainer.copy(alpha = 0.6f)) {
+        Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 4.dp)) {
+            Text(stringResource(R.string.setup_tips_title), style = MaterialTheme.typography.titleSmall, color = scheme.primary)
+            Text(
+                stringResource(R.string.tip_home),
+                style = MaterialTheme.typography.bodyMedium,
+                color = scheme.onPrimaryContainer,
+                modifier = Modifier.padding(top = 4.dp, end = 8.dp),
+            )
+            Row(Modifier.align(Alignment.End)) {
+                TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.settings)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.got_it)) }
+            }
         }
     }
 }

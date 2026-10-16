@@ -66,9 +66,10 @@ private fun AzanApp() {
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         refreshKey++
     }
-    // Ask for notifications once the app is set up, not on the welcome screen.
-    LaunchedEffect(settings.hasLocation) {
-        if (settings.hasLocation && Build.VERSION.SDK_INT >= 33 && !Notifications.canPost(context)) {
+    // Ask for notifications once setup is finished, right after the user chose how to be alerted.
+    val ready = settings.hasLocation && settings.onboarded
+    LaunchedEffect(ready) {
+        if (ready && Build.VERSION.SDK_INT >= 33 && !Notifications.canPost(context)) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -85,6 +86,7 @@ private fun AzanApp() {
 
     val screen = when {
         !settings.hasLocation -> Screen.WELCOME
+        !settings.onboarded -> Screen.SETUP
         showSettings -> Screen.SETTINGS
         else -> Screen.HOME
     }
@@ -99,6 +101,11 @@ private fun AzanApp() {
     ) { target ->
         when (target) {
             Screen.WELCOME -> WelcomeScreen(settings, update)
+            Screen.SETUP -> {
+                // Back goes to choosing the city again.
+                BackHandler { update(settings.copy(latitude = null, longitude = null, locationName = "")) }
+                SetupScreen(settings, update, onDone = {})
+            }
             Screen.SETTINGS -> {
                 BackHandler { showSettings = false }
                 SettingsScreen(settings = settings, onChange = update, onBack = { showSettings = false })
@@ -126,4 +133,4 @@ private fun needsSync(synced: SyncedTimes, settings: AppSettings): Boolean {
     return lastDay.isBefore(LocalDate.now().plusDays(14))
 }
 
-private enum class Screen { WELCOME, HOME, SETTINGS }
+private enum class Screen { WELCOME, SETUP, HOME, SETTINGS }

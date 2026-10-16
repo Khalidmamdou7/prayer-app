@@ -95,6 +95,26 @@ class ScreenshotTest {
     }
 
     @Test
+    @Config(qualifiers = "w400dp-h1500dp-xxhdpi")
+    fun setup() {
+        compose.setContent { AzanTheme(darkTheme = false) { SetupScreen(settings.copy(onboarded = false, alertModes = Prayer.prayers.associateWith { AlertMode.NOTIFICATION }), {}, {}) } }
+        compose.onRoot().captureRoboImage("../docs/screenshots/setup.png")
+    }
+
+    @Test
+    @Config(qualifiers = "ar-rEG-ldrtl-w400dp-h1500dp-xxhdpi")
+    fun setupArabic() {
+        compose.setContent { AzanTheme(darkTheme = true) { SetupScreen(settings.copy(onboarded = false, alertModes = Prayer.prayers.associateWith { AlertMode.NOTIFICATION }), {}, {}) } }
+        compose.onRoot().captureRoboImage("../docs/screenshots/setup_ar_dark.png")
+    }
+
+    @Test
+    fun homeFirstVisit() {
+        home(dark = false, state.copy(showTip = true))
+        compose.onRoot().captureRoboImage("../docs/screenshots/home_tip.png")
+    }
+
+    @Test
     fun welcomeDark() {
         compose.setContent { AzanTheme(darkTheme = true) { WelcomeScreen(settings.copy(latitude = null, longitude = null), {}) } }
         compose.onRoot().captureRoboImage("../docs/screenshots/welcome_dark.png")

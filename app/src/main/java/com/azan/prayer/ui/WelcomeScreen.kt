@@ -54,8 +54,14 @@ fun WelcomeScreen(settings: AppSettings, onChange: (AppSettings) -> Unit) {
                 Column(
                     Modifier
                         .statusBarsPadding()
-                        .padding(start = 28.dp, end = 28.dp, top = 56.dp, bottom = 76.dp),
+                        .padding(start = 28.dp, end = 28.dp, top = 40.dp, bottom = 76.dp),
                 ) {
+                    Text(
+                        stringResource(R.string.step_of, 1, 2),
+                        color = hero.accent,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Spacer(Modifier.height(20.dp))
                     PrayerGlyph(Prayer.ISHA, hero.accent, Modifier.size(44.dp))
                     Spacer(Modifier.height(20.dp))
                     Text(stringResource(R.string.welcome_title), color = hero.content, style = MaterialTheme.typography.displayMedium)

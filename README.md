@@ -35,7 +35,9 @@ Tap **Test** to hear the current choice.
 
 ## Install
 
-Every push builds a debug APK on GitHub Actions. Open the **Actions** tab, select the latest run, and download the `azan-debug-apk` artifact. Unzip it and install `app-debug.apk` on the phone. You'll need to allow installing from unknown sources.
+Every push builds a debug APK on GitHub Actions. Open the **Actions** tab, select the latest run, and download the `azan-debug-apk` artifact. Unzip it and install `app-debug.apk` on the phone. You'll need to allow installing from unknown sources. Debug builds share one signing key, so each new one installs over the last one and keeps your settings.
+
+The version lives in `version.properties`. Raise it for every release (see [PLAY_STORE.md](PLAY_STORE.md#for-every-update)).
 
 To build it yourself, use JDK 17+ and the Android SDK:
 

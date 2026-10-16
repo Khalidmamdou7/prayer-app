@@ -142,6 +142,22 @@
     <string name="section_language">اللغة</string>
     <string name="language_system">لغة الهاتف</string>
 
+    <string name="step_of">الخطوة %1$d من %2$d</string>
+    <string name="setup_title">كيف يذكّرك أذان؟</string>
+    <string name="setup_subtitle">يمكنك تغيير كل ذلك لاحقًا.</string>
+    <string name="setup_at_time">عند دخول وقت كل صلاة</string>
+    <string name="setup_mode_adhan">يُرفع الأذان كاملًا حتى لو كان الهاتف مقفلًا.</string>
+    <string name="setup_mode_notification">إشعار بصوت قصير.</string>
+    <string name="setup_mode_off">بدون تنبيه، تكتفي بمتابعة المواقيت في التطبيق.</string>
+    <string name="setup_tips_title">معلومات مفيدة</string>
+    <string name="tip_bell">اضغط الجرس بجانب أي صلاة لتبدّل بين الأذان والإشعار والصمت.</string>
+    <string name="tip_tick">علّم الصلاة بعد أدائها، فلا يظهر لها تذكير.</string>
+    <string name="tip_settings">في الإعدادات (رمز الترس في الأعلى): الموقع، وطريقة الحساب، وصوت الأذان، والتذكير، واللغة، وغيرها.</string>
+    <string name="setup_done">ابدأ</string>
+    <string name="tip_home">اضغط الجرس بجانب أي صلاة لتغيير تنبيهها، وعلّم الدائرة بعد أداء الصلاة، وستجد كل شيء آخر في الإعدادات (رمز الترس في الأعلى).</string>
+    <string name="got_it">فهمت</string>
+    <string name="version_label">الإصدار %1$s</string>
+
     <plurals name="notif_reminder_text">
         <item quantity="zero">ينتهي وقت %1$s الآن</item>
         <item quantity="one">ينتهي وقت %1$s بعد دقيقة واحدة</item>

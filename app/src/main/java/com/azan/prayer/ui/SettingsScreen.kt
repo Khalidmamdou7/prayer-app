@@ -419,6 +419,12 @@ private fun ReliabilitySection() {
             runCatching { context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) }
         }) { Text(stringResource(R.string.battery_settings)) }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        val version = remember {
+            runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull()
+        }
+        if (version != null) {
+            Text(stringResource(R.string.version_label, version), style = MaterialTheme.typography.labelLarge)
+        }
         Text(
             stringResource(R.string.about_credits),
             style = MaterialTheme.typography.bodySmall,
